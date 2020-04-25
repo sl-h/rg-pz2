@@ -24,7 +24,7 @@ namespace WpfApp1
 
         List<PowerEntity> entities = new List<PowerEntity>();
 
-        int ConvertToCanvas(double point, double start, double scale) => Utility.ConvertToCanvas(point, scale, start, 5, canvas.Width);
+        int ConvertToCanvas(double point, double start, double scale) => Utility.ConvertToCanvas(point, scale, start, canvas.Width / matrixSize, canvas.Width);
 
         (MyPoint min, MyPoint max) FindMinMax(List<XmlNodeList> xmlPointDataHolders)
         {
@@ -41,18 +41,16 @@ namespace WpfApp1
                 }
             }
 
-            return Utility.GetBottomLeftPoint(sortPoints);
+            return Utility.MinMax(sortPoints);
         }
 
-        PowerEntity ParsePowerEntity(XmlNode node)
+        void ParsePowerEntity(XmlNode node, PowerEntity entity)
         {
-            return new PowerEntity()
-            {
-                Id = long.Parse(node.SelectSingleNode("Id").InnerText),
-                Name = node.SelectSingleNode("Name").InnerText,
-                X = double.Parse(node.SelectSingleNode("X").InnerText),
-                Y = double.Parse(node.SelectSingleNode("Y").InnerText)
-            };
+            entity.Id = long.Parse(node.SelectSingleNode("Id").InnerText);
+            entity.Name = node.SelectSingleNode("Name").InnerText;
+            entity.X = double.Parse(node.SelectSingleNode("X").InnerText);
+            entity.Y = double.Parse(node.SelectSingleNode("Y").InnerText);
+            if (entity is SwitchEntity) (entity as SwitchEntity).Status = node.SelectSingleNode("Status").InnerText;
         }
 
         void CreateDot(PowerEntity entity, MyPoint minimalPoint, double scale, System.Windows.Media.Color color)
@@ -61,7 +59,7 @@ namespace WpfApp1
 
             var i = ConvertToCanvas(x, minimalPoint.x, scale * 50);
             var j = ConvertToCanvas(y, minimalPoint.y, scale * 50);
-            
+
             spots[i + 170][j + 170].AssigntEntity(entity, color);
             spots[i + 170][j + 170].Shape.MouseLeftButtonDown += LeftClickOnPoint;
         }
@@ -98,21 +96,24 @@ namespace WpfApp1
 
             foreach (XmlNode node in nodeListSubstation)
             {
-                var entity = ParsePowerEntity(node);
+                var entity = new SubstationEntity();
+                ParsePowerEntity(node, entity);
                 entities.Add(entity);
                 CreateDot(entity, minMax.min, scale, System.Windows.Media.Color.FromRgb(0, 255, 0));
             }
 
             foreach (XmlNode node in nodeListNode)
             {
-                var entity = ParsePowerEntity(node);
+                var entity = new NodeEntity();
+                ParsePowerEntity(node, entity);
                 entities.Add(entity);
                 CreateDot(entity, minMax.min, scale, System.Windows.Media.Color.FromRgb(255, 255, 0));
             }
 
             foreach (XmlNode node in nodeListSwitch)
             {
-                var entity = ParsePowerEntity(node);
+                var entity = new SwitchEntity();
+                ParsePowerEntity(node, entity);
                 entities.Add(entity);
                 CreateDot(entity, minMax.min, scale, System.Windows.Media.Color.FromRgb(0, 0, 255));
             }

@@ -66,6 +66,7 @@
     </ApplicationDefinition>
     <Compile Include="EntitySpot.cs" />
     <Compile Include="MyPoint.cs" />
+    <Compile Include="ToolTipHelper.cs" />
     <Compile Include="Utility.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>

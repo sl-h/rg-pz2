@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Shapes;
@@ -22,11 +23,11 @@ public class EntitySpot
     float size;
     Canvas canvas;
 
-    public List<PowerEntity> entity { get; private set; } = new List<PowerEntity>();
+    public List<PowerEntity> Entities { get; private set; } = new List<PowerEntity>();
     public Shape Shape { get; private set; }
-    public bool IsOccupied;
     public int X { get; private set; }
     public int Y { get; private set; }
+    public bool IsOccupied;
 
     public void AssigntEntity(PowerEntity entity, Color color)
     {
@@ -34,6 +35,12 @@ public class EntitySpot
         Shape.Width = size * 3.5f;
         Shape.Height = size * 3.5f;
         Shape.Fill = sb;
-        this.entity.Add(entity);
+        this.Entities.Add(entity);
+        Shape.MouseEnter += OnHover;
+    }
+
+    void OnHover(object sender, RoutedEventArgs e)
+    {
+        Shape.ToolTip = ToolTipHelper.Serialize(Entities);
     }
 }
