@@ -1,47 +1,15 @@
-﻿using GMap.NET;
-using GMap.NET.MapProviders;
-using GMap.NET.WindowsForms;
-using GMap.NET.WindowsForms.Markers;
-using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using System.Net;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Xml;
 using WpfApp1.Model;
-using Brushes = System.Drawing.Brushes;
-using Pen = System.Drawing.Pen;
 using Point = WpfApp1.Model.Point;
-using Size = System.Drawing.Size;
 
 namespace WpfApp1
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
-    /// 
-    public class MyPoint
-    {
-        public double x, y;
-
-        public MyPoint(double x, double y)
-        {
-            this.x = x;
-            this.y = y;
-        }
-        public MyPoint() { }
-    }
     public partial class MainWindow : Window
     {
         public double noviX, noviY;
@@ -84,6 +52,7 @@ namespace WpfApp1
                 Y = double.Parse(node.SelectSingleNode("Y").InnerText)
             };
         }
+     
         Shape CreateDot(float size, MyPoint position, MyPoint minimalPoint, System.Windows.Media.Color color)
         {
             Shape dot = new Ellipse() { Height = size, Width = size };
