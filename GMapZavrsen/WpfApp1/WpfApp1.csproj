@@ -64,6 +64,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="EntitySpot.cs" />
     <Compile Include="MyPoint.cs" />
     <Compile Include="Utility.cs" />
     <Page Include="MainWindow.xaml">

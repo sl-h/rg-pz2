@@ -1,18 +1,11 @@
-﻿namespace WpfApp1
+﻿public class MyPoint
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
-    /// 
-    public class MyPoint
-    {
-        public double x, y;
+    public double x, y;
 
-        public MyPoint(double x, double y)
-        {
-            this.x = x;
-            this.y = y;
-        }
-        public MyPoint() { }
+    public MyPoint(double x, double y)
+    {
+        this.x = x;
+        this.y = y;
     }
+    public MyPoint() { }
 }
