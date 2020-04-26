@@ -148,7 +148,7 @@ namespace WpfApp1
             {
                 Polyline s = new Polyline();
                 s.Stroke = new SolidColorBrush(Color.FromRgb(0, 0, 0));
-                s.StrokeThickness = 2;
+                s.StrokeThickness = 0.5;
                 foreach (var pat in item.spots)
                 {
                     s.Points.Add(new System.Windows.Point(pat.X, pat.Y));

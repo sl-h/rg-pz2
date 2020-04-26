@@ -17,8 +17,8 @@ public class EntitySpot
         Shape.Fill = sb;
         canvas.Children.Add(Shape);
 
-        Canvas.SetLeft(Shape, X);
-        Canvas.SetTop(Shape, Y);
+        Canvas.SetLeft(Shape, X - size / 2);
+        Canvas.SetTop(Shape, Y - size / 2);
     }
     float size;
     Canvas canvas;
@@ -29,12 +29,17 @@ public class EntitySpot
     public int Y { get; private set; }
     public bool IsOccupied;
     public bool IsVisited;
+    public bool IsExamined;
     public EntitySpot parent;
     public void AssigntEntity(PowerEntity entity, Color color)
     {
         SolidColorBrush sb = new SolidColorBrush { Color = color };
         Shape.Width = size * 3.5f;
         Shape.Height = size * 3.5f;
+
+        Canvas.SetLeft(Shape, X - size * 3.5 / 2);
+        Canvas.SetTop(Shape, Y - size * 3.5 / 2);
+
         Shape.Fill = sb;
         this.Entities.Add(entity);
         Shape.MouseEnter += OnHover;
