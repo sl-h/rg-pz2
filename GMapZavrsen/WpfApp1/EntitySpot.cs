@@ -28,7 +28,8 @@ public class EntitySpot
     public int X { get; private set; }
     public int Y { get; private set; }
     public bool IsOccupied;
-
+    public bool IsVisited;
+    public EntitySpot parent;
     public void AssigntEntity(PowerEntity entity, Color color)
     {
         SolidColorBrush sb = new SolidColorBrush { Color = color };

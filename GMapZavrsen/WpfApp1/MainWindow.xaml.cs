@@ -15,16 +15,21 @@ namespace WpfApp1
     {
         const int matrixSize = 400;
         public double noviX, noviY;
+        public static int fieldSize;
+        public static int pointOffset = 170;
         public MainWindow()
         {
             InitializeComponent();
+            fieldSize = (int)(canvas.Width / matrixSize);
             LoadButton_Click(null, new RoutedEventArgs());
         }
         List<List<EntitySpot>> spots = new List<List<EntitySpot>>(400);
 
-        List<PowerEntity> entities = new List<PowerEntity>();
+        Dictionary<long, EntitySpot> entities = new Dictionary<long, EntitySpot>();
 
-        int ConvertToCanvas(double point, double start, double scale) => Utility.ConvertToCanvas(point, scale, start, canvas.Width / matrixSize, canvas.Width);
+
+
+        int ConvertToCanvas(double point, double start, double scale) => Utility.ConvertToCanvas(point, scale, start, fieldSize, canvas.Width);
 
         (MyPoint min, MyPoint max) FindMinMax(List<XmlNodeList> xmlPointDataHolders)
         {
@@ -44,6 +49,8 @@ namespace WpfApp1
             return Utility.MinMax(sortPoints);
         }
 
+
+
         void ParsePowerEntity(XmlNode node, PowerEntity entity)
         {
             entity.Id = long.Parse(node.SelectSingleNode("Id").InnerText);
@@ -53,26 +60,26 @@ namespace WpfApp1
             if (entity is SwitchEntity) (entity as SwitchEntity).Status = node.SelectSingleNode("Status").InnerText;
         }
 
-        void CreateDot(PowerEntity entity, MyPoint minimalPoint, double scale, System.Windows.Media.Color color)
+        EntitySpot CreateDot(PowerEntity entity, MyPoint minimalPoint, double scale, System.Windows.Media.Color color)
         {
             Utility.ToLatLon(entity.X, entity.Y, 34, out double x, out double y);
 
             var i = ConvertToCanvas(x, minimalPoint.x, scale * 50);
             var j = ConvertToCanvas(y, minimalPoint.y, scale * 50);
 
-            spots[i + 170][j + 170].AssigntEntity(entity, color);
-            spots[i + 170][j + 170].Shape.MouseLeftButtonDown += LeftClickOnPoint;
+            spots[i + pointOffset][j + pointOffset].AssigntEntity(entity, color);
+            spots[i + pointOffset][j + pointOffset].Shape.MouseLeftButtonDown += LeftClickOnPoint;
+            return spots[i + pointOffset][j + pointOffset];
         }
 
         void PopulateMatrix()
         {
-            int offset = (int)(canvas.Width / matrixSize);
             for (int i = 0; i < matrixSize; i++)
             {
                 spots.Add(new List<EntitySpot>(matrixSize));
                 for (int j = 0; j < matrixSize; j++)
                 {
-                    spots[i].Add(new EntitySpot(1f, canvas, i * offset, j * offset));
+                    spots[i].Add(new EntitySpot(1f, canvas, i * fieldSize, j * fieldSize));
                 }
             }
         }
@@ -98,56 +105,57 @@ namespace WpfApp1
             {
                 var entity = new SubstationEntity();
                 ParsePowerEntity(node, entity);
-                entities.Add(entity);
-                CreateDot(entity, minMax.min, scale, System.Windows.Media.Color.FromRgb(0, 255, 0));
+                var spot = CreateDot(entity, minMax.min, scale, System.Windows.Media.Color.FromRgb(0, 255, 0));
+                entities.Add(entity.Id, spot);
             }
 
             foreach (XmlNode node in nodeListNode)
             {
                 var entity = new NodeEntity();
                 ParsePowerEntity(node, entity);
-                entities.Add(entity);
-                CreateDot(entity, minMax.min, scale, System.Windows.Media.Color.FromRgb(255, 255, 0));
+
+                var spot = CreateDot(entity, minMax.min, scale, System.Windows.Media.Color.FromRgb(255, 255, 0));
+                entities.Add(entity.Id, spot);
             }
 
             foreach (XmlNode node in nodeListSwitch)
             {
                 var entity = new SwitchEntity();
                 ParsePowerEntity(node, entity);
-                entities.Add(entity);
-                CreateDot(entity, minMax.min, scale, System.Windows.Media.Color.FromRgb(0, 0, 255));
+                var spot = CreateDot(entity, minMax.min, scale, System.Windows.Media.Color.FromRgb(0, 0, 255));
+                entities.Add(entity.Id, spot);
             }
 
-            //LineEntity line = new LineEntity();
-            //foreach (XmlNode item in nodeListLines)
-            //{
-            //    line.Id = long.Parse(item.SelectSingleNode("Id").InnerText);
-            //    line.Name = item.SelectSingleNode("Name").InnerText;
-            //    line.IsUnderground = bool.Parse(item.SelectSingleNode("IsUnderground").InnerText);
-            //    line.LineType = item.SelectSingleNode("LineType").InnerText;
-            //    line.R = float.Parse(item.SelectSingleNode("R").InnerText);
-            //    line.FirstEnd = long.Parse(item.SelectSingleNode("FirstEnd").InnerText);
-            //    line.SecondEnd = long.Parse(item.SelectSingleNode("SecondEnd").InnerText);
-            //    line.ConductorMaterial = item.SelectSingleNode("ConductorMaterial").InnerText;
-            //    line.ThermalConstantHeat = long.Parse(item.SelectSingleNode("ThermalConstantHeat").InnerText);
-            //    line.Vertices = new List<Point>();
-            //    foreach (XmlNode pointNode in item.ChildNodes[9].ChildNodes)
-            //    {
-            //        double x = double.Parse(pointNode.SelectSingleNode("X").InnerText);
-            //        double y = double.Parse(pointNode.SelectSingleNode("Y").InnerText);
-            //        line.Vertices.Add(new Point() { X = x, Y = y });
-            //    }
+            List<LineEntity> lines = new List<LineEntity>();
+            foreach (XmlNode item in nodeListLines)
+            {
+                var line = new LineEntity();
+                line.Id = long.Parse(item.SelectSingleNode("Id").InnerText);
+                line.Name = item.SelectSingleNode("Name").InnerText;
+                line.IsUnderground = bool.Parse(item.SelectSingleNode("IsUnderground").InnerText);
+                line.LineType = item.SelectSingleNode("LineType").InnerText;
+                line.R = float.Parse(item.SelectSingleNode("R").InnerText);
+                line.FirstEnd = long.Parse(item.SelectSingleNode("FirstEnd").InnerText);
+                line.SecondEnd = long.Parse(item.SelectSingleNode("SecondEnd").InnerText);
+                line.ConductorMaterial = item.SelectSingleNode("ConductorMaterial").InnerText;
+                line.ThermalConstantHeat = long.Parse(item.SelectSingleNode("ThermalConstantHeat").InnerText);
+                lines.Add(line);
+            }
+            BFSLineIterator iterator = new BFSLineIterator();
 
-            //    Shape dot = new Ellipse() { Height = 4, Width = 4 };
-            //    SolidColorBrush sb = new SolidColorBrush { Color = System.Windows.Media.Color.FromRgb(0, 0, 0) };
-            //    dot.Fill = sb;
 
-            //    // canvas.Children.Add(dot);
+            foreach (var item in iterator.FindPaths(entities, spots, lines))
+            {
+                Polyline s = new Polyline();
+                s.Stroke = new SolidColorBrush(Color.FromRgb(0, 0, 0));
+                s.StrokeThickness = 2;
+                foreach (var pat in item.spots)
+                {
+                    s.Points.Add(new System.Windows.Point(pat.X, pat.Y));
+                }
+                canvas.Children.Add(s);
+            }
 
-            //    //  ToLatLon(swtc.X, swtc.Y, 34, out noviX, out noviY);
-            //    //Canvas.SetLeft(dot, ConvertToCanvas(noviX, 1000000, lowest.x, 1000, canvas.Width) * 6);
-            //    //Canvas.SetTop(dot, ConvertToCanvas(noviY, 1000000, lowest.y, 1000, canvas.Height) * 3);
-            //}
 
         }
 
@@ -158,5 +166,6 @@ namespace WpfApp1
             zoomslider.Value = 10;
             (e.OriginalSource as Shape).BringIntoView(new Rect(-20, 20, 40, 40));
         }
+
     }
 }
