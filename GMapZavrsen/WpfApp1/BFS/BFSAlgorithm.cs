@@ -22,10 +22,18 @@ public class BFSLineIterator
         {
             if (entities.TryGetValue(item.FirstEnd, out EntitySpot start) && entities.TryGetValue(item.SecondEnd, out EntitySpot end))
             {
+                for (int i = 0; i < matrix.Count; i++)
+                {
+                    for (int j = 0; j < matrix[i].Count; j++)
+                    {
+                        matrix[i][j].IsVisited = false;
+                        matrix[i][j].parent = null;
+                    }
+                }
                 paths.Add(algorithm.FindPath(start, end, matrix));
-
-                //if (paths.Last().spots.Count > 0)
-                cnt++;
+                if (paths.Count > 0)
+                    if (paths.Last().spots.Count > 0)
+                        cnt++;
                 //break;
             }
         }
@@ -39,11 +47,22 @@ public class BFSLineIterator
 
 public class BFSAlgorithm
 {
-    public Path FindPath(EntitySpot start, EntitySpot end, List<List<EntitySpot>> matrix)
+
+    Path GetPathFromNodeParents(EntitySpot v)
     {
         Path path = new Path();
 
+        path.spots.Add(v);
+        while (v.parent != null)
+        {
+            path.spots.Add(v.parent);
+            v = v.parent;
+        }
+        return path;
+    }
 
+    public Path FindPath(EntitySpot start, EntitySpot end, List<List<EntitySpot>> matrix)
+    {
         int ofst = 0;// MainWindow.pointOffset;
 
         Queue<EntitySpot> queue = new Queue<EntitySpot>();
@@ -54,26 +73,17 @@ public class BFSAlgorithm
             v.IsVisited = true;
             int startX = v.X / MainWindow.fieldSize;
             int startY = v.Y / MainWindow.fieldSize;
+
             if (v == end)
             {
-                path.spots.Add(v);
-                while (v.parent != null)
-                {
-                    path.spots.Add(v.parent);
-                    v = v.parent;
-
-                }
-                return path;
-
+                return GetPathFromNodeParents(v);
             }
 
 
             if (startX + ofst + 1 < 400)
             {
                 var n = matrix[startX + ofst + 1][startY];
-                // if (n.Entities.Count == 0 || n == end)
-
-                if (n.IsOccupied == false && n.IsVisited == false && n.IsExamined == false)
+                if (n.IsOccupied == false && n.IsVisited == false)
                 {
                     n.IsVisited = true;
                     n.parent = v;
@@ -83,10 +93,8 @@ public class BFSAlgorithm
             }
             if (startX + ofst - 1 >= 0 && startX + ofst - 1 < 400)
             {
-
                 var n = matrix[startX + ofst - 1][startY];
-                //  if (n.Entities.Count == 0 || n == end)
-                if (n.IsOccupied == false && n.IsVisited == false && n.IsExamined == false)
+                if (n.IsOccupied == false && n.IsVisited == false)
                 {
                     n.IsVisited = true;
                     n.parent = v;
@@ -98,9 +106,8 @@ public class BFSAlgorithm
             if (startY + ofst + 1 < 400)
             {
                 var n = matrix[startX][startY + ofst + 1];
-                // if (n.Entities.Count == 0 || n == end)
 
-                if (n.IsOccupied == false && n.IsVisited == false && n.IsExamined == false)
+                if (n.IsOccupied == false && n.IsVisited == false)
                 {
                     n.IsVisited = true;
                     n.parent = v;
@@ -108,13 +115,10 @@ public class BFSAlgorithm
                     queue.Enqueue(n);
                 }
             }
-            if (startY + ofst - 1 >= 0 && startY + ofst - 1 < 400)
+            if (startY + ofst - 1 >= 0)
             {
-
                 var n = matrix[startX][startY + ofst - 1];
-                //  if (n.Entities.Count == 0 || n == end)
-
-                if (n.IsOccupied == false && n.IsVisited == false && n.IsExamined == false)
+                if (n.IsOccupied == false && n.IsVisited == false)
                 {
                     n.IsVisited = true;
                     n.parent = v;
@@ -122,16 +126,6 @@ public class BFSAlgorithm
                 }
             }
         }
-
-        if (queue.Count > 0)
-        {
-            var s = queue.Dequeue();
-            while (s.parent != null)
-            {
-                path.spots.Add(s.parent);
-                s = s.parent;
-            }
-        }
-        return path;
+        return new Path();
     }
 }

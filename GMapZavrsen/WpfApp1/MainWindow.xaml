@@ -15,7 +15,8 @@
         <ScrollViewer Name="scroll" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Visible" Margin="0,0,0,0" Width="1000">
             <Grid>
                 <!--<Button x:Name="LoadButton" Content="Load Model" Click="LoadButton_Click" Width="150" Margin="0" />-->
-                <Canvas Name="canvas" Width="2000" Height="2000" >
+                
+                <Canvas Name="canvas" Width="2000" Height="2000">
                     <Canvas.LayoutTransform>
                         <ScaleTransform ScaleX="{Binding ElementName=zoomslider, Path=Value}"
                                         ScaleY="{Binding ElementName=zoomslider, Path=Value}"/>

@@ -159,7 +159,9 @@ namespace WpfApp1
 
         }
 
-
+        void FLipMatrix()
+        { 
+        }
 
         public void LeftClickOnPoint(object sender, MouseButtonEventArgs e)
         {
