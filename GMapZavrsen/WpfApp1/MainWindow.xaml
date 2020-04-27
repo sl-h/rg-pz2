@@ -11,15 +11,24 @@
         Title="MainWindow" Height="727.8" Width="1080.351">
 
     <DockPanel>
-        <Slider x:Name="zoomslider" Minimum=".1" Maximum="20" Value="1" DockPanel.Dock="Top" Margin="0,0,22.215,0"/>
+        <Slider x:Name="zoomslider" Minimum="1" Maximum="20" Value="1" DockPanel.Dock="Top" Margin="0,0,22.215,0"/>
         <ScrollViewer Name="scroll" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Visible" Margin="0,0,0,0" Width="1000">
             <Grid>
                 <!--<Button x:Name="LoadButton" Content="Load Model" Click="LoadButton_Click" Width="150" Margin="0" />-->
                 
                 <Canvas Name="canvas" Width="2000" Height="2000">
+                    <Canvas.RenderTransform>
+                        <TransformGroup>
+                        <RotateTransform Angle="-90" CenterX="0" CenterY="0"/>
+                        <TranslateTransform Y="2000"/>
+                        </TransformGroup>
+                    </Canvas.RenderTransform>
+                    <!--<Canvas.RenderTransform>
+                    </Canvas.RenderTransform>-->
                     <Canvas.LayoutTransform>
                         <ScaleTransform ScaleX="{Binding ElementName=zoomslider, Path=Value}"
                                         ScaleY="{Binding ElementName=zoomslider, Path=Value}"/>
+                        
 
                     </Canvas.LayoutTransform>
                 </Canvas>
