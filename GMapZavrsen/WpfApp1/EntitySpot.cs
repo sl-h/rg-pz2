@@ -36,12 +36,12 @@ public class EntitySpot
         SolidColorBrush sb = new SolidColorBrush { Color = color };
         Shape.Width = size * 3.5f;
         Shape.Height = size * 3.5f;
-
         Canvas.SetLeft(Shape, X - size * 3.5 / 2);
         Canvas.SetTop(Shape, Y - size * 3.5 / 2);
 
         Shape.Fill = sb;
         this.Entities.Add(entity);
+        //Canvas.SetZIndex(Shape, 1);
         Shape.MouseEnter += OnHover;
     }
 

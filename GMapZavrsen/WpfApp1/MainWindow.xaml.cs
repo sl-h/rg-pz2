@@ -144,23 +144,40 @@ namespace WpfApp1
             BFSLineIterator iterator = new BFSLineIterator();
 
 
-            foreach (var item in iterator.FindPaths(entities, spots, lines))
+            foreach (var paths in iterator.FindPaths(entities, spots, lines))
             {
-                Polyline s = new Polyline();
-                s.Stroke = new SolidColorBrush(Color.FromRgb(0, 0, 0));
-                s.StrokeThickness = 0.5;
-                foreach (var pat in item.spots)
+                // Ovde je sa preklapanjem
+
+                //Polyline s = new Polyline();
+                //s.Stroke = new SolidColorBrush(Color.FromRgb(0, 0, 0));
+                //s.StrokeThickness = 0.5;
+
+                //foreach (var pat in paths.spots)
+                //{
+                //    s.Points.Add(new System.Windows.Point(pat.X, pat.Y));
+                //}
+                //canvas.Children.Add(s);
+                for (int i = 0; i < paths.spots.Count - 1; i++)
                 {
-                    s.Points.Add(new System.Windows.Point(pat.X, pat.Y));
+                    Polyline s = new Polyline();
+
+                    s.Points.Add(new System.Windows.Point(paths.spots[i].X, paths.spots[i].Y));
+                    s.Points.Add(new System.Windows.Point(paths.spots[i + 1].X, paths.spots[i + 1].Y));
+                    if (paths.spots[i].IsOccupied == false || paths.spots[i + 1].IsOccupied == false)
+                    {
+                        paths.spots[i].IsOccupied = true;
+                        s.Stroke = new SolidColorBrush(Color.FromRgb(0, 0, 0));
+                        s.StrokeThickness = 0.5;
+                        canvas.Children.Add(s);
+                    }
                 }
-                canvas.Children.Add(s);
             }
 
 
         }
 
         void FLipMatrix()
-        { 
+        {
         }
 
         public void LeftClickOnPoint(object sender, MouseButtonEventArgs e)
