@@ -122,5 +122,4 @@ public class EntitySpot
     }
 }
 
-// desni klik na vod oboji+
-// grupna slika+
+// desni klik na vod oboji

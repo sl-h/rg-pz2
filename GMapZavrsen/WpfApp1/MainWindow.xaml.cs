@@ -12,6 +12,14 @@ using Point = WpfApp1.Model.Point;
 
 namespace WpfApp1
 {
+    public class LineSegmentContainer
+    {
+        public EntitySpot p1;
+        public EntitySpot p2;
+        public Polyline line;
+    }
+
+
     public partial class MainWindow : Window
     {
         const int matrixSize = 400;
@@ -27,7 +35,7 @@ namespace WpfApp1
         List<List<EntitySpot>> spots = new List<List<EntitySpot>>(400);
 
         Dictionary<long, EntitySpot> entities = new Dictionary<long, EntitySpot>();
-        Dictionary<long, List<Polyline>> entityLineLines = new Dictionary<long, List<Polyline>>();
+        Dictionary<long, List<LineSegmentContainer>> entityLineLines = new Dictionary<long, List<LineSegmentContainer>>();
 
 
         int ConvertToCanvas(double point, double start, double scale) => Utility.ConvertToCanvas(point, scale, start, fieldSize, canvas.Width);
@@ -71,6 +79,7 @@ namespace WpfApp1
             var examinedSpot = spots[i + pointOffset][j + pointOffset];
             //examinedSpot.AssigntEntity(entity, color);
             //return examinedSpot;
+
             if (examinedSpot.Entities.Count == 0)
             {
                 examinedSpot.AssigntEntity(entity, color);
@@ -181,27 +190,49 @@ namespace WpfApp1
                 //}
                 //canvas.Children.Add(s); 
                 #endregion
-                entityLineLines[path.lineEntityId] = new List<Polyline>();
+                entityLineLines[path.lineEntityId] = new List<LineSegmentContainer>();
                 for (int i = 0; i < path.spots.Count - 1; i++)
                 {
-                    Polyline s = new Polyline();
 
-                    s.Points.Add(new System.Windows.Point(path.spots[i].X, path.spots[i].Y));
-                    s.Points.Add(new System.Windows.Point(path.spots[i + 1].X, path.spots[i + 1].Y));
-                    entityLineLines[path.lineEntityId].Add(s);
                     if (path.spots[i].IsOccupied == false || path.spots[i + 1].IsOccupied == false)  // overlap check
                     {
+                        Polyline s = new Polyline();
+
+                        var p1 = new System.Windows.Point(path.spots[i].X, path.spots[i].Y);
+                        var p2 = new System.Windows.Point(path.spots[i + 1].X, path.spots[i + 1].Y);
+                        s.Points.Add(p1);
+                        s.Points.Add(p2);
                         path.spots[i].AssignLinePart(path.lineEntityId);
+
+                        entityLineLines[path.lineEntityId].Add(new LineSegmentContainer() { line = s, p1 = path.spots[i], p2 = path.spots[i + 1] });
                         if (path.spots[i].IsOccupied && path.spots[i].Entities.Count == 0)
                         {
                             path.spots[i].AssignCross();
                         }
+
                         path.spots[i].IsOccupied = true;
                         s.Stroke = new SolidColorBrush(Color.FromRgb(0, 0, 0));
                         s.StrokeThickness = 0.5;
                         canvas.Children.Add(s);
                         s.MouseRightButtonDown += path.spots[i].RightClickOnThis;
-
+                    }
+                    else
+                    {
+                        bool found = false;
+                        foreach (var item in entityLineLines.Values)
+                        {
+                            if (found)
+                                break;
+                            foreach (var l in item)
+                            {
+                                if (path.spots[i] == l.p1 && path.spots[i + 1] == l.p2)
+                                {
+                                    found = true;
+                                    entityLineLines[path.lineEntityId].Add(l);
+                                    break;
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -209,11 +240,11 @@ namespace WpfApp1
 
         public void ClickOnLine(long lineId, Color color)
         {
-            if (entityLineLines.TryGetValue(lineId, out List<Polyline> lineSegments))
+            if (entityLineLines.TryGetValue(lineId, out List<LineSegmentContainer> lineSegments))
             {
                 foreach (var item in lineSegments)
                 {
-                    item.Stroke = new SolidColorBrush(color);
+                    item.line.Stroke = new SolidColorBrush(color);
                 }
             }
         }
