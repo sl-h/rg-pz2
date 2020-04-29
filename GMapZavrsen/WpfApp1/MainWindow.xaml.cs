@@ -163,8 +163,12 @@ namespace WpfApp1
 
                     s.Points.Add(new System.Windows.Point(paths.spots[i].X, paths.spots[i].Y));
                     s.Points.Add(new System.Windows.Point(paths.spots[i + 1].X, paths.spots[i + 1].Y));
-                    if (paths.spots[i].IsOccupied == false || paths.spots[i + 1].IsOccupied == false)
+                    if (paths.spots[i].IsOccupied == false || paths.spots[i + 1].IsOccupied == false)  // overlap check
                     {
+                        if (paths.spots[i].IsOccupied && paths.spots[i].Entities.Count == 0)
+                        {
+                            paths.spots[i].AssignCross();
+                        }
                         paths.spots[i].IsOccupied = true;
                         s.Stroke = new SolidColorBrush(Color.FromRgb(0, 0, 0));
                         s.StrokeThickness = 0.5;

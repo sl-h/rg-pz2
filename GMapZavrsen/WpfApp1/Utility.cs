@@ -4,8 +4,6 @@ using System.Linq;
 
 public static class Utility
 {
-
-    // otu vrednosti zameniti
     /// <summary>
     /// From UTM to Latitude and longitude in decimal
     /// </summary>

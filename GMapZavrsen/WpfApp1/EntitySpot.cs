@@ -23,13 +23,16 @@ public class EntitySpot
     float size;
     Canvas canvas;
 
+    public bool IsVisited;
+    public bool IsExamined;
+
     public List<PowerEntity> Entities { get; private set; } = new List<PowerEntity>();
     public Shape Shape { get; private set; }
     public int X { get; private set; }
     public int Y { get; private set; }
     public bool IsOccupied;
-    public bool IsVisited;
-    public bool IsExamined;
+
+
     public EntitySpot parent;
     public void AssigntEntity(PowerEntity entity, Color color)
     {
@@ -42,11 +45,25 @@ public class EntitySpot
         Shape.Fill = sb;
         this.Entities.Add(entity);
         //Canvas.SetZIndex(Shape, 1);
-        Shape.MouseEnter += OnHover;
+        Shape.MouseEnter += OnHoverOverNode;
     }
 
-    void OnHover(object sender, RoutedEventArgs e)
+    public void AssignCross()
+    {
+        Shape.Height = 3;
+        Shape.Width = 3;
+        SolidColorBrush sb = new SolidColorBrush { Color = Color.FromRgb(0, 0, 0) };
+        Shape.Fill = sb;
+        Canvas.SetLeft(Shape, X - size * 3 / 2);
+        Canvas.SetTop(Shape, Y - size * 3 / 2);
+    }
+
+    void OnHoverOverNode(object sender, RoutedEventArgs e)
     {
         Shape.ToolTip = ToolTipHelper.Serialize(Entities);
+    }
+    void OnHoverOverLine(object sender, RoutedEventArgs e)
+    {
+        //Shape.ToolTip = ToolTipHelper.Serialize(Entities);
     }
 }
