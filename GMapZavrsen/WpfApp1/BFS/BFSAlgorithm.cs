@@ -133,4 +133,79 @@ public class BFSAlgorithm
         }
         return new Path();
     }
+    public static EntitySpot GetClosestEmptySpot(EntitySpot start, List<List<EntitySpot>> matrix)
+    {
+        for (int i = 0; i < matrix.Count; i++)
+        {
+            for (int j = 0; j < matrix[i].Count; j++)
+            {
+                matrix[i][j].IsVisited = false;
+                matrix[i][j].parent = null;
+            }
+        }
+
+        Queue<EntitySpot> queue = new Queue<EntitySpot>();
+        queue.Enqueue(start);
+        while (queue.Count > 0)
+        {
+            var v = queue.Dequeue();
+            v.IsVisited = true;
+            int startX = v.X / MainWindow.fieldSize;
+            int startY = v.Y / MainWindow.fieldSize;
+
+            if (v.Entities.Count == 0)
+            {
+                return v;
+            }
+
+
+            if (startX + 1 < 400)
+            {
+                var n = matrix[startX + 1][startY];
+                if (n.IsOccupied == false && n.IsVisited == false)
+                {
+                    n.IsVisited = true;
+                    n.parent = v;
+
+                    queue.Enqueue(n);
+                }
+            }
+            if (startX - 1 >= 0 && startX - 1 < 400)
+            {
+                var n = matrix[startX - 1][startY];
+                if (n.IsOccupied == false && n.IsVisited == false)
+                {
+                    n.IsVisited = true;
+                    n.parent = v;
+
+                    queue.Enqueue(n);
+                }
+            }
+
+            if (startY + 1 < 400)
+            {
+                var n = matrix[startX][startY + 1];
+
+                if (n.IsOccupied == false && n.IsVisited == false)
+                {
+                    n.IsVisited = true;
+                    n.parent = v;
+
+                    queue.Enqueue(n);
+                }
+            }
+            if (startY - 1 >= 0)
+            {
+                var n = matrix[startX][startY - 1];
+                if (n.IsOccupied == false && n.IsVisited == false)
+                {
+                    n.IsVisited = true;
+                    n.parent = v;
+                    queue.Enqueue(n);
+                }
+            }
+        }
+        return null;
+    }
+
 }

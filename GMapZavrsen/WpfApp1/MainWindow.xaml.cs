@@ -68,9 +68,31 @@ namespace WpfApp1
             var i = ConvertToCanvas(x, minimalPoint.x, scale * 50);
             var j = ConvertToCanvas(y, minimalPoint.y, scale * 50);
 
-            spots[i + pointOffset][j + pointOffset].AssigntEntity(entity, color);
-            return spots[i + pointOffset][j + pointOffset];
+            var examinedSpot = spots[i + pointOffset][j + pointOffset];
+            //examinedSpot.AssigntEntity(entity, color);
+            //return examinedSpot;
+            if (examinedSpot.Entities.Count == 0)
+            {
+                examinedSpot.AssigntEntity(entity, color);
+                return examinedSpot;
+            }
+            else
+            {
+                var next = BFSAlgorithm.GetClosestEmptySpot(examinedSpot, spots);
+                if (next == null)
+                {
+                    examinedSpot.AssigntEntity(entity, color);
+                    return examinedSpot;
+                }
+                else
+                {
+                    next.AssigntEntity(entity, color);
+                    return next;
+                }
+            }
+
         }
+
 
         void PopulateMatrix()
         {
@@ -166,6 +188,7 @@ namespace WpfApp1
 
                     s.Points.Add(new System.Windows.Point(path.spots[i].X, path.spots[i].Y));
                     s.Points.Add(new System.Windows.Point(path.spots[i + 1].X, path.spots[i + 1].Y));
+                    entityLineLines[path.lineEntityId].Add(s);
                     if (path.spots[i].IsOccupied == false || path.spots[i + 1].IsOccupied == false)  // overlap check
                     {
                         path.spots[i].AssignLinePart(path.lineEntityId);
@@ -177,8 +200,8 @@ namespace WpfApp1
                         s.Stroke = new SolidColorBrush(Color.FromRgb(0, 0, 0));
                         s.StrokeThickness = 0.5;
                         canvas.Children.Add(s);
+                        s.MouseRightButtonDown += path.spots[i].RightClickOnThis;
 
-                        entityLineLines[path.lineEntityId].Add(s);
                     }
                 }
             }
@@ -190,7 +213,7 @@ namespace WpfApp1
             {
                 foreach (var item in lineSegments)
                 {
-                    item.Fill = new SolidColorBrush(color);
+                    item.Stroke = new SolidColorBrush(color);
                 }
             }
         }

@@ -8,6 +8,14 @@ using System.Windows.Shapes;
 using WpfApp1.Model;
 public class EntitySpot
 {
+    private const float nodeSpotSize = 3.5f;
+    private const float crossSpotSize = 3f;
+    private const float emptySpotSize = 1f;
+
+    float size;
+    Canvas canvas;
+    Action<long, Color> onLineClick;
+
     public EntitySpot(float size, Canvas canvas, int x, int y, Action<long, Color> clickOnlinee)
     {
         this.onLineClick = clickOnlinee;
@@ -19,19 +27,14 @@ public class EntitySpot
         SolidColorBrush sb = new SolidColorBrush { Color = Color.FromRgb(125, 125, 125) };
         Shape.Fill = sb;
         canvas.Children.Add(Shape);
-        Shape.MouseRightButtonDown += RightClickOnThis;
 
         Canvas.SetLeft(Shape, X - size / 2);
         Canvas.SetTop(Shape, Y - size / 2);
     }
-    float size;
-    Canvas canvas;
-    Action<long, Color> onLineClick;
+
     public bool IsVisited;
     public bool IsExamined;
-    private const float nodeSpotSize = 3.5f;
-    private const float crossSpotSize = 3f;
-    private const float emptySpotSize = 1f;
+
     public List<PowerEntity> Entities { get; private set; } = new List<PowerEntity>();
     public long LineId = -1;
     public Shape Shape { get; private set; }
@@ -67,7 +70,8 @@ public class EntitySpot
     }
     public void AssignLinePart(long lineID)
     {
-        LineId = lineID;
+        if (Entities.Count == 0)
+            LineId = lineID;
     }
 
     void OnHoverOverNode(object sender, RoutedEventArgs e)
@@ -88,7 +92,7 @@ public class EntitySpot
         Canvas.SetTop(Shape, Y - size * nodeSpotSize * scale / 2);
     }
 
-    void RightClickOnThis(object sender, RoutedEventArgs e)
+    public void RightClickOnThis(object sender, RoutedEventArgs e)
     {
         if (LineId >= 0)
         {
@@ -118,5 +122,5 @@ public class EntitySpot
     }
 }
 
-// desni klik na vod oboji
-// grupna slika
+// desni klik na vod oboji+
+// grupna slika+
