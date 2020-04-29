@@ -112,7 +112,7 @@ namespace WpfApp1
                 spots.Add(new List<EntitySpot>(matrixSize));
                 for (int j = 0; j < matrixSize; j++)
                 {
-                    spots[i].Add(new EntitySpot(1f, canvas, i * fieldSize, j * fieldSize, ClickOnLine));
+                    spots[i].Add(new EntitySpot(1f, canvas, i * fieldSize, j * fieldSize, RightClickOnLine));
                 }
             }
         }
@@ -265,23 +265,21 @@ namespace WpfApp1
         }
 
 
-        public void ClickOnLine(long lineId, Color color)
+        public void RightClickOnLine(long lineId, Color color, bool enable)
         {
             if (entityLineLines.TryGetValue(lineId, out List<LineSegmentContainer> lineSegments))
             {
+                var brush = new SolidColorBrush(color);
                 foreach (var item in lineSegments)
                 {
-                    item.line.Stroke = new SolidColorBrush(color);
+                    item.line.Stroke = brush;
                 }
+                var line = lines[lineId];
+                var spot1 = entities[line.FirstEnd];
+                var spot2 = entities[line.SecondEnd];
+                spot1.Highlight(enable);
+                spot2.Highlight(enable);
             }
         }
-
-
-        void FLipMatrix()
-        {
-        }
-
-
-
     }
 }

@@ -6,6 +6,8 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Shapes;
 using WpfApp1.Model;
+
+
 public class EntitySpot
 {
     private const float nodeSpotSize = 3.5f;
@@ -14,9 +16,10 @@ public class EntitySpot
 
     float size;
     Canvas canvas;
-    Action<long, Color> onLineClick;
+    Action<long, Color, bool> onLineClick;
+    SolidColorBrush defaultSolidbrush;
 
-    public EntitySpot(float size, Canvas canvas, int x, int y, Action<long, Color> clickOnlinee)
+    public EntitySpot(float size, Canvas canvas, int x, int y, Action<long, Color, bool> clickOnlinee)
     {
         this.onLineClick = clickOnlinee;
         this.canvas = canvas;
@@ -40,23 +43,37 @@ public class EntitySpot
     public Shape Shape { get; private set; }
     public int X { get; private set; }
     public int Y { get; private set; }
+
+
     public bool IsOccupied;
 
 
     public EntitySpot parent;
     public void AssigntEntity(PowerEntity entity, Color color)
     {
-        SolidColorBrush sb = new SolidColorBrush { Color = color };
+        defaultSolidbrush = new SolidColorBrush { Color = color };
         Shape.Width = size * nodeSpotSize;
         Shape.Height = size * nodeSpotSize;
         Canvas.SetLeft(Shape, X - size * nodeSpotSize / 2);
         Canvas.SetTop(Shape, Y - size * nodeSpotSize / 2);
 
-        Shape.Fill = sb;
+        Shape.Fill = defaultSolidbrush;
         this.Entities.Add(entity);
         //Canvas.SetZIndex(Shape, 1);
         Shape.MouseEnter += OnHoverOverNode;
         Shape.MouseLeftButtonDown += LeftClickOnThis;
+    }
+
+    public void Highlight(bool enable)
+    {
+        if (enable)
+        {
+            Shape.Fill = new SolidColorBrush(Color.FromRgb(255, 0, 0));
+        }
+        else
+        {
+            Shape.Fill = defaultSolidbrush;
+        }
     }
 
     public void AssignCross()
@@ -101,9 +118,9 @@ public class EntitySpot
     }
     async void OnClickLine()
     {
-        onLineClick(LineId, Color.FromRgb(255, 0, 0));
+        onLineClick(LineId, Color.FromRgb(255, 0, 0), true);
         await DelayThenDoSomeWork();
-        onLineClick(LineId, Color.FromRgb(0, 0, 0));
+        onLineClick(LineId, Color.FromRgb(0, 0, 0), false);
     }
 
     async void LeftClickOnThis(object sender, RoutedEventArgs e)
