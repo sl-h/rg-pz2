@@ -138,5 +138,3 @@ public class EntitySpot
         await Task.Delay(5000);
     }
 }
-
-// desni klik na vod oboji
