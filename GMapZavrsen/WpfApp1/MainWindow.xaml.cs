@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -68,7 +69,6 @@ namespace WpfApp1
             var j = ConvertToCanvas(y, minimalPoint.y, scale * 50);
 
             spots[i + pointOffset][j + pointOffset].AssigntEntity(entity, color);
-            spots[i + pointOffset][j + pointOffset].Shape.MouseLeftButtonDown += LeftClickOnPoint;
             return spots[i + pointOffset][j + pointOffset];
         }
 
@@ -184,11 +184,7 @@ namespace WpfApp1
         {
         }
 
-        public void LeftClickOnPoint(object sender, MouseButtonEventArgs e)
-        {
-            zoomslider.Value = 10;
-            (e.OriginalSource as Shape).BringIntoView(new Rect(-20, 20, 40, 40));
-        }
+
 
     }
 }
