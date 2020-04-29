@@ -27,7 +27,7 @@ namespace WpfApp1
         List<List<EntitySpot>> spots = new List<List<EntitySpot>>(400);
 
         Dictionary<long, EntitySpot> entities = new Dictionary<long, EntitySpot>();
-
+        Dictionary<long, List<Polyline>> entityLineLines = new Dictionary<long, List<Polyline>>();
 
 
         int ConvertToCanvas(double point, double start, double scale) => Utility.ConvertToCanvas(point, scale, start, fieldSize, canvas.Width);
@@ -79,7 +79,7 @@ namespace WpfApp1
                 spots.Add(new List<EntitySpot>(matrixSize));
                 for (int j = 0; j < matrixSize; j++)
                 {
-                    spots[i].Add(new EntitySpot(1f, canvas, i * fieldSize, j * fieldSize));
+                    spots[i].Add(new EntitySpot(1f, canvas, i * fieldSize, j * fieldSize, ClickOnLine));
                 }
             }
         }
@@ -144,8 +144,9 @@ namespace WpfApp1
             BFSLineIterator iterator = new BFSLineIterator();
 
 
-            foreach (var paths in iterator.FindPaths(entities, spots, lines))
+            foreach (var path in iterator.FindPaths(entities, spots, lines))
             {
+                #region Sa prekalapanjem
                 // Ovde je sa preklapanjem
 
                 //Polyline s = new Polyline();
@@ -156,28 +157,42 @@ namespace WpfApp1
                 //{
                 //    s.Points.Add(new System.Windows.Point(pat.X, pat.Y));
                 //}
-                //canvas.Children.Add(s);
-                for (int i = 0; i < paths.spots.Count - 1; i++)
+                //canvas.Children.Add(s); 
+                #endregion
+                entityLineLines[path.lineEntityId] = new List<Polyline>();
+                for (int i = 0; i < path.spots.Count - 1; i++)
                 {
                     Polyline s = new Polyline();
 
-                    s.Points.Add(new System.Windows.Point(paths.spots[i].X, paths.spots[i].Y));
-                    s.Points.Add(new System.Windows.Point(paths.spots[i + 1].X, paths.spots[i + 1].Y));
-                    if (paths.spots[i].IsOccupied == false || paths.spots[i + 1].IsOccupied == false)  // overlap check
+                    s.Points.Add(new System.Windows.Point(path.spots[i].X, path.spots[i].Y));
+                    s.Points.Add(new System.Windows.Point(path.spots[i + 1].X, path.spots[i + 1].Y));
+                    if (path.spots[i].IsOccupied == false || path.spots[i + 1].IsOccupied == false)  // overlap check
                     {
-                        if (paths.spots[i].IsOccupied && paths.spots[i].Entities.Count == 0)
+                        path.spots[i].AssignLinePart(path.lineEntityId);
+                        if (path.spots[i].IsOccupied && path.spots[i].Entities.Count == 0)
                         {
-                            paths.spots[i].AssignCross();
+                            path.spots[i].AssignCross();
                         }
-                        paths.spots[i].IsOccupied = true;
+                        path.spots[i].IsOccupied = true;
                         s.Stroke = new SolidColorBrush(Color.FromRgb(0, 0, 0));
                         s.StrokeThickness = 0.5;
                         canvas.Children.Add(s);
+
+                        entityLineLines[path.lineEntityId].Add(s);
                     }
                 }
             }
+        }
 
-
+        public void ClickOnLine(long lineId, Color color)
+        {
+            if (entityLineLines.TryGetValue(lineId, out List<Polyline> lineSegments))
+            {
+                foreach (var item in lineSegments)
+                {
+                    item.Fill = new SolidColorBrush(color);
+                }
+            }
         }
 
         void FLipMatrix()

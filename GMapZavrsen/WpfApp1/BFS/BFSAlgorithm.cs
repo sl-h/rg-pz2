@@ -7,6 +7,7 @@ using System.Diagnostics;
 
 public class Path
 {
+    public long lineEntityId;
     public List<EntitySpot> spots = new List<EntitySpot>();
 }
 
@@ -30,7 +31,11 @@ public class BFSLineIterator
                         matrix[i][j].parent = null;
                     }
                 }
-                paths.Add(algorithm.FindPath(start, end, matrix));
+
+                var path = algorithm.FindPath(start, end, matrix);
+                path.lineEntityId = item.Id;
+                paths.Add(path);
+
                 if (paths.Count > 0)
                     if (paths.Last().spots.Count > 0)
                         cnt++;

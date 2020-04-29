@@ -8,8 +8,9 @@ using System.Windows.Shapes;
 using WpfApp1.Model;
 public class EntitySpot
 {
-    public EntitySpot(float size, Canvas canvas, int x, int y)
+    public EntitySpot(float size, Canvas canvas, int x, int y, Action<long, Color> clickOnlinee)
     {
+        this.onLineClick = clickOnlinee;
         this.canvas = canvas;
         this.size = size;
         this.X = x;
@@ -18,19 +19,21 @@ public class EntitySpot
         SolidColorBrush sb = new SolidColorBrush { Color = Color.FromRgb(125, 125, 125) };
         Shape.Fill = sb;
         canvas.Children.Add(Shape);
+        Shape.MouseRightButtonDown += RightClickOnThis;
 
         Canvas.SetLeft(Shape, X - size / 2);
         Canvas.SetTop(Shape, Y - size / 2);
     }
     float size;
     Canvas canvas;
-
+    Action<long, Color> onLineClick;
     public bool IsVisited;
     public bool IsExamined;
     private const float nodeSpotSize = 3.5f;
     private const float crossSpotSize = 3f;
     private const float emptySpotSize = 1f;
     public List<PowerEntity> Entities { get; private set; } = new List<PowerEntity>();
+    public long LineId = -1;
     public Shape Shape { get; private set; }
     public int X { get; private set; }
     public int Y { get; private set; }
@@ -50,7 +53,7 @@ public class EntitySpot
         this.Entities.Add(entity);
         //Canvas.SetZIndex(Shape, 1);
         Shape.MouseEnter += OnHoverOverNode;
-        Shape.MouseDown += LeftClickOnPoint;
+        Shape.MouseLeftButtonDown += LeftClickOnThis;
     }
 
     public void AssignCross()
@@ -61,6 +64,10 @@ public class EntitySpot
         Shape.Fill = sb;
         Canvas.SetLeft(Shape, X - size * crossSpotSize / 2);
         Canvas.SetTop(Shape, Y - size * crossSpotSize / 2);
+    }
+    public void AssignLinePart(long lineID)
+    {
+        LineId = lineID;
     }
 
     void OnHoverOverNode(object sender, RoutedEventArgs e)
@@ -81,7 +88,21 @@ public class EntitySpot
         Canvas.SetTop(Shape, Y - size * nodeSpotSize * scale / 2);
     }
 
-    async void LeftClickOnPoint(object sender, RoutedEventArgs e)
+    void RightClickOnThis(object sender, RoutedEventArgs e)
+    {
+        if (LineId >= 0)
+        {
+            OnClickLine();
+        }
+    }
+    async void OnClickLine()
+    {
+        onLineClick(LineId, Color.FromRgb(255, 0, 0));
+        await DelayThenDoSomeWork();
+        onLineClick(LineId, Color.FromRgb(0, 0, 0));
+    }
+
+    async void LeftClickOnThis(object sender, RoutedEventArgs e)
     {
         if (Entities.Count > 0)
         {
