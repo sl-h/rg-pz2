@@ -19,16 +19,18 @@
                 <Canvas Name="canvas" Width="2000" Height="2000">
                     <!--<Canvas.RenderTransform>
                         <TransformGroup>
-                            <RotateTransform Angle="-90" CenterX="0" CenterY="0"/>
                             <TranslateTransform Y="2000"/>
                         </TransformGroup>
                     </Canvas.RenderTransform>-->
                     <!--<Canvas.RenderTransform>
                     </Canvas.RenderTransform>-->
                     <Canvas.LayoutTransform>
-                        <ScaleTransform ScaleX="{Binding ElementName=zoomslider, Path=Value}"
-                                        ScaleY="{Binding ElementName=zoomslider, Path=Value}"/>
+                        <TransformGroup>
 
+                            <RotateTransform Angle="270"/>
+                            <ScaleTransform ScaleX="{Binding ElementName=zoomslider, Path=Value}"
+                                        ScaleY="{Binding ElementName=zoomslider, Path=Value}"/>
+                        </TransformGroup>
 
                     </Canvas.LayoutTransform>
                 </Canvas>

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -36,6 +37,7 @@ namespace WpfApp1
 
         Dictionary<long, EntitySpot> entities = new Dictionary<long, EntitySpot>();
         Dictionary<long, List<LineSegmentContainer>> entityLineLines = new Dictionary<long, List<LineSegmentContainer>>();
+        Dictionary<long, LineEntity> lines = new Dictionary<long, LineEntity>();
 
 
         int ConvertToCanvas(double point, double start, double scale) => Utility.ConvertToCanvas(point, scale, start, fieldSize, canvas.Width);
@@ -157,7 +159,6 @@ namespace WpfApp1
                 entities.Add(entity.Id, spot);
             }
 
-            List<LineEntity> lines = new List<LineEntity>();
             foreach (XmlNode item in nodeListLines)
             {
                 var line = new LineEntity();
@@ -170,12 +171,12 @@ namespace WpfApp1
                 line.SecondEnd = long.Parse(item.SelectSingleNode("SecondEnd").InnerText);
                 line.ConductorMaterial = item.SelectSingleNode("ConductorMaterial").InnerText;
                 line.ThermalConstantHeat = long.Parse(item.SelectSingleNode("ThermalConstantHeat").InnerText);
-                lines.Add(line);
+                lines.Add(line.Id, line);
             }
             BFSLineIterator iterator = new BFSLineIterator();
 
 
-            foreach (var path in iterator.FindPaths(entities, spots, lines))
+            foreach (var path in iterator.FindPaths(entities, spots, lines.Values.ToList()))
             {
                 #region Sa prekalapanjem
                 // Ovde je sa preklapanjem
@@ -215,6 +216,7 @@ namespace WpfApp1
                         s.StrokeThickness = 0.5;
                         canvas.Children.Add(s);
                         s.MouseRightButtonDown += path.spots[i].RightClickOnThis;
+                        s.MouseEnter += OnHoverOverLine;
                     }
                     else
                     {
@@ -238,6 +240,31 @@ namespace WpfApp1
             }
         }
 
+        void OnHoverOverLine(object sender, RoutedEventArgs e)
+        {
+            long lineId = -1;
+            var linePart = e.OriginalSource as Polyline;
+            bool getOut = false;
+            foreach (var item in entityLineLines)
+            {
+                if (getOut) break;
+                foreach (var j in item.Value)
+                {
+                    if (linePart == j.line)
+                    {
+                        lineId = item.Key;
+                        getOut = true;
+                        break;
+                    }
+                }
+            }
+            LineEntity line = lines[lineId];
+
+            linePart.ToolTip = $"Type: Line Entity\nId: {line.Id}\nName: {line.Name}\nIsUnderground: {line.IsUnderground}";
+
+        }
+
+
         public void ClickOnLine(long lineId, Color color)
         {
             if (entityLineLines.TryGetValue(lineId, out List<LineSegmentContainer> lineSegments))
@@ -248,6 +275,7 @@ namespace WpfApp1
                 }
             }
         }
+
 
         void FLipMatrix()
         {
